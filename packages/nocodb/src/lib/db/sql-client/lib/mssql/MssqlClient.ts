@@ -356,9 +356,7 @@ class MssqlClient extends KnexClient {
 
     try {
       /** ************** START : create _evolution table if not exists *************** */
-      const exists = await this.sqlClient.schema.hasTable(
-        this.getTnPath(args.tn)
-      );
+      const exists = await this.sqlClient.schema.hasTable(args.tn);
 
       if (!exists) {
         await this.sqlClient.schema.createTable(
@@ -396,9 +394,7 @@ class MssqlClient extends KnexClient {
     log.api(`${_func}:args:`, args);
 
     try {
-      result.data.value = await this.sqlClient.schema.hasTable(
-        this.getTnPath(args.tn)
-      );
+      result.data.value = await this.sqlClient.schema.hasTable(args.tn);
     } catch (e) {
       log.ppe(e, _func);
       throw e;
