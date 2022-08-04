@@ -185,7 +185,7 @@ async function dataRead(req: Request, res: Response) {
       await getAst({ model, query: req.query, view }),
       await baseModel.readByPk(req.params.rowId),
       {},
-      {}
+      req.query
     )
   );
 }
