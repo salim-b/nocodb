@@ -251,7 +251,7 @@ class BaseModelSqlv2 {
 
     if (!ignoreFilterSort) applyPaginate(qb, rest);
     const proto = await this.getProto();
-    let data = await this.extractRawQueryAndExec(qb);
+    const data = await this.extractRawQueryAndExec(qb);
 
     return data?.map((d) => {
       d.__proto__ = proto;
@@ -362,13 +362,13 @@ class BaseModelSqlv2 {
     qb.groupBy(args.column_name);
     if (sorts) await sortV2(sorts, qb, this.dbDriver);
     applyPaginate(qb, rest);
-    let data = await qb;
+    const data = await qb;
     return data;
   }
 
   async multipleHmList({ colId, ids }, args: { limit?; offset? } = {}) {
     try {
-      const { where, ...rest } = this._getListArgs(args as any);
+      const { where, sort, ...rest } = this._getListArgs(args as any);
       // todo: get only required fields
 
       // const { cn } = this.hasManyRelations.find(({ tn }) => tn === child) || {};
@@ -392,6 +392,7 @@ class BaseModelSqlv2 {
 
       const qb = this.dbDriver(childTable.table_name);
       await childModel.selectObject({ qb });
+      await this.applySortAndFilter({ table: childTable, where, qb, sort });
 
       const childQb = this.dbDriver.queryBuilder().from(
         this.dbDriver
@@ -439,6 +440,26 @@ class BaseModelSqlv2 {
     }
   }
 
+  private async applySortAndFilter({
+    table,
+    where,
+    qb,
+    sort,
+  }: {
+    table: Model;
+    where: string;
+    qb;
+    sort: string;
+  }) {
+    const childAliasColMap = await table.getAliasColObjMap();
+
+    const filter = extractFilterFromXwhere(where, childAliasColMap);
+    await conditionV2(filter, qb, this.dbDriver);
+    if (!sort) return;
+    const sortObj = extractSortsObject(sort, childAliasColMap);
+    if (sortObj) await sortV2(sortObj, qb, this.dbDriver);
+  }
+
   async multipleHmListCount({ colId, ids }) {
     try {
       // const { cn } = this.hasManyRelations.find(({ tn }) => tn === child) || {};
@@ -482,7 +503,7 @@ class BaseModelSqlv2 {
 
   async hmList({ colId, id }, args: { limit?; offset? } = {}) {
     try {
-      const { where, ...rest } = this._getListArgs(args as any);
+      const { where, sort, ...rest } = this._getListArgs(args as any);
       // todo: get only required fields
 
       const relColumn = (await this.model.getColumns()).find(
@@ -504,6 +525,7 @@ class BaseModelSqlv2 {
       await parentTable.getColumns();
 
       const qb = this.dbDriver(childTable.table_name);
+      await this.applySortAndFilter({ table: childTable, where, qb, sort });
 
       qb.whereIn(
         chilCol.column_name,
@@ -571,8 +593,11 @@ class BaseModelSqlv2 {
     }
   }
 
-  public async multipleMmList({ colId, parentIds }, args: { limit?; offset? } = {}) {
-    const { where, ...rest } = this._getListArgs(args as any);
+  public async multipleMmList(
+    { colId, parentIds },
+    args: { limit?; offset? } = {}
+  ) {
+    const { where, sort, ...rest } = this._getListArgs(args as any);
     const relColumn = (await this.model.getColumns()).find(
       (c) => c.id === colId
     );
@@ -599,6 +624,9 @@ class BaseModelSqlv2 {
     const qb = this.dbDriver(rtn).join(vtn, `${vtn}.${vrcn}`, `${rtn}.${rcn}`);
 
     await childModel.selectObject({ qb });
+
+    await this.applySortAndFilter({ table: childTable, where, qb, sort });
+
     const finalQb = this.dbDriver.unionAll(
       parentIds.map((id) => {
         const query = qb
@@ -642,7 +670,7 @@ class BaseModelSqlv2 {
   }
 
   public async mmList({ colId, parentId }, args: { limit?; offset? } = {}) {
-    const { where, ...rest } = this._getListArgs(args as any);
+    const { where, sort, ...rest } = this._getListArgs(args as any);
     const relColumn = (await this.model.getColumns()).find(
       (c) => c.id === colId
     );
@@ -677,6 +705,9 @@ class BaseModelSqlv2 {
       );
 
     await childModel.selectObject({ qb });
+
+    await this.applySortAndFilter({ table: childTable, where, qb, sort });
+
     // todo: sanitize
     qb.limit(+rest?.limit || 20);
     qb.offset(+rest?.offset || 0);
@@ -879,7 +910,7 @@ class BaseModelSqlv2 {
     applyPaginate(qb, rest);
 
     const proto = await childModel.getProto();
-    let data = await qb;
+    const data = await qb;
 
     return data.map((c) => {
       c.__proto__ = proto;
@@ -979,7 +1010,7 @@ class BaseModelSqlv2 {
     applyPaginate(qb, rest);
 
     const proto = await childModel.getProto();
-    let data = await this.extractRawQueryAndExec(qb);
+    const data = await this.extractRawQueryAndExec(qb);
 
     return data.map((c) => {
       c.__proto__ = proto;
@@ -1079,7 +1110,7 @@ class BaseModelSqlv2 {
     applyPaginate(qb, rest);
 
     const proto = await parentModel.getProto();
-    let data = await this.extractRawQueryAndExec(qb);
+    const data = await this.extractRawQueryAndExec(qb);
 
     return data.map((c) => {
       c.__proto__ = proto;
