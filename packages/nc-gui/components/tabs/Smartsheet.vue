@@ -45,15 +45,28 @@ const {
   isForm,
   isLocked,
   nestedFilters,
+  sorts,
 } = useProvideSmartsheetStore(activeView as Ref<TableType>, meta)
 
+
+/** keep view level state in tabMeta and restore on view change */
 watch(nestedFilters, (newFilters) => {
   tabMeta.value.state = tabMeta.value.state || {}
-  tabMeta.value.state[activeView.value.id] = newFilters
+  tabMeta.value.state[activeView.value.id] = tabMeta.value.state[activeView.value.id] || {}
+  tabMeta.value.state[activeView.value.id].filters = newFilters
+})
+
+watch(sorts, (newSorts) => {
+  tabMeta.value.state = tabMeta.value.state || {}
+  tabMeta.value.state[activeView.value.id] = tabMeta.value.state[activeView.value.id] || {}
+  tabMeta.value.state[activeView.value.id].sorts = newSorts
 })
 
 watch(activeView, (newView: ViewType) => {
-  nestedFilters.value = tabMeta.value.state?.[newView.id!]
+  if (tabMeta.value.state?.[newView.id!]?.filters)
+    nestedFilters.value = tabMeta.value.state?.[newView.id!]?.filters || []
+  if (tabMeta.value.state?.[newView.id!]?.sorts)
+    sorts.value = tabMeta.value.state?.[newView.id!]?.sorts || []
 })
 
 // provide the sidebar injection state
