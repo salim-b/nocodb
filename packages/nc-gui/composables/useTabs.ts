@@ -13,6 +13,7 @@ export interface TabItem {
   id?: string
   viewTitle?: string
   viewId?: string
+  state?: any
 }
 
 function getPredicate(key: Partial<TabItem>) {
