@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ColumnType, TableType, ViewType } from 'nocodb-sdk'
 import type { Ref } from 'vue'
+import { useUIPermission } from '#imports'
 import SmartsheetGrid from '../smartsheet/Grid.vue'
 import {
   ActiveViewInj,
@@ -39,6 +40,8 @@ const reloadEventHook = createEventHook<void>()
 const openNewRecordFormHook = createEventHook<void>()
 
 const { isGallery, isGrid, isForm, isLocked } = useProvideSmartsheetStore(activeView, meta)
+const {isUIAllowed} = useUIPermission()
+
 const {
   isGallery,
   isGrid,
@@ -51,22 +54,34 @@ const {
 
 /** keep view level state in tabMeta and restore on view change */
 watch(nestedFilters, (newFilters) => {
-  tabMeta.value.state = tabMeta.value.state || {}
-  tabMeta.value.state[activeView.value.id] = tabMeta.value.state[activeView.value.id] || {}
-  tabMeta.value.state[activeView.value.id].filters = newFilters
+  tabMeta.value.state = tabMeta.value.state || new Map()
+  if (!tabMeta.value.state.has(activeView.value.id)) {
+    tabMeta.value.state.set(activeView.value.id, new Map())
+  }
+  tabMeta.value.state.get(activeView.value.id)!.set('filters', newFilters)
 })
 
 watch(sorts, (newSorts) => {
-  tabMeta.value.state = tabMeta.value.state || {}
-  tabMeta.value.state[activeView.value.id] = tabMeta.value.state[activeView.value.id] || {}
-  tabMeta.value.state[activeView.value.id].sorts = newSorts
+  tabMeta.value.state = tabMeta.value.state || new Map()
+  if (!tabMeta.value.state.has(activeView.value.id)) {
+    tabMeta.value.state.set(activeView.value.id, new Map())
+  }
+  tabMeta.value.state.get(activeView.value.id)!.set('sorts', newSorts)
 })
 
 watch(activeView, (newView: ViewType) => {
-  if (tabMeta.value.state?.[newView.id!]?.filters)
-    nestedFilters.value = tabMeta.value.state?.[newView.id!]?.filters || []
-  if (tabMeta.value.state?.[newView.id!]?.sorts)
-    sorts.value = tabMeta.value.state?.[newView.id!]?.sorts || []
+  if(!newView || !tabMeta.value?.state?.get(newView.id as string)) return
+
+  if (
+    tabMeta.value?.state?.get(newView.id as string)?.has('filters') &&
+    !isUIAllowed('filterSync') &&
+    !isUIAllowed('filterChildrenRead')
+  ) {
+    nestedFilters.value = tabMeta.value?.state?.get(newView.id as string)?.get('filters') || []
+  }
+  if (tabMeta.value?.state?.get(newView.id as string)?.has('sorts') && !isUIAllowed('sortSync')) {
+    nestedFilters.value = tabMeta.value?.state?.get(newView.id as string)?.get('sorts') || []
+  }
 })
 
 // provide the sidebar injection state

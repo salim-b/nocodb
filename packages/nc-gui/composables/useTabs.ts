@@ -13,7 +13,7 @@ export interface TabItem {
   id?: string
   viewTitle?: string
   viewId?: string
-  state?: any
+  state?: Map<string, Map<string, any>>
 }
 
 function getPredicate(key: Partial<TabItem>) {
@@ -46,6 +46,7 @@ export function useTabs() {
         let index = tabs.value.findIndex((t) => t.id === tab.id)
 
         if (index === -1) {
+          tab.state = tab.state || new Map()
           tabs.value.push(tab as TabItem)
           index = tabs.value.length - 1
         }
