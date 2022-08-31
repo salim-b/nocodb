@@ -1,7 +1,10 @@
-import type { SortType, ViewType } from 'nocodb-sdk'
+import { ViewType } from 'nocodb-sdk'
+import type { GalleryType, GridType, KanbanType, SortType } from 'nocodb-sdk'
 import type { Ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { IsPublicInj, ReloadViewDataHookInj, extractSdkResponseErrorMsg, useNuxtApp } from '#imports'
+import { TabItem } from '~/composables/useTabs'
+import { TabMetaInj } from '~/context'
 
 export function useViewSorts(view: Ref<ViewType | undefined>, reloadData?: () => void) {
   const { sharedView } = useSharedView()
@@ -16,6 +19,8 @@ export function useViewSorts(view: Ref<ViewType | undefined>, reloadData?: () =>
   const { isUIAllowed } = useUIPermission()
   const { isSharedBase } = useProject()
 
+  const tabMeta = inject(TabMetaInj, ref({ sortsState: new Map() } as TabItem))
+
   const loadSorts = async () => {
     if (isPublic.value) {
       // todo: sorts missing on `ViewType`
@@ -25,6 +30,13 @@ export function useViewSorts(view: Ref<ViewType | undefined>, reloadData?: () =>
     }
 
     try {
+      if (!isUIAllowed('sortSync')) {
+        const sortsBackup = tabMeta.value.sortsState.get(view.value.id!)
+        if (sortsBackup) {
+          sorts.value = sortsBackup
+          return
+        }
+      }
       if (!view?.value) return
       sorts.value = (await $api.dbTableSort.list(view.value!.id!)).sorts?.list || []
     } catch (e: any) {
@@ -37,6 +49,7 @@ export function useViewSorts(view: Ref<ViewType | undefined>, reloadData?: () =>
     if (isPublic.value || isSharedBase.value) {
       sorts.value[i] = sort
       sorts.value = [...sorts.value]
+      tabMeta.value.sortsState.set(view.value.id!, sorts.value)
       return
     }
 
@@ -65,6 +78,8 @@ export function useViewSorts(view: Ref<ViewType | undefined>, reloadData?: () =>
     ]
 
     $e('a:sort:add', { length: sorts?.value?.length })
+
+    tabMeta.value.sortsState.set(view.value.id!, sorts.value)
   }
 
   const deleteSort = async (sort: SortType, i: number) => {
@@ -74,6 +89,8 @@ export function useViewSorts(view: Ref<ViewType | undefined>, reloadData?: () =>
       }
       sorts.value.splice(i, 1)
       sorts.value = [...sorts.value]
+
+      tabMeta.value.sortsState.set(view.value.id!, sorts.value)
 
       $e('a:sort:delete')
     } catch (e: any) {
@@ -85,6 +102,50 @@ export function useViewSorts(view: Ref<ViewType | undefined>, reloadData?: () =>
   watch(sorts, () => {
     reloadHook?.trigger()
   })
+
+
+  // watch(
+  //   activeView,
+  //   (newView: ViewType) => {
+  //     if (!newView || !tabMeta.value?.state?.get(newView.id as string)) {
+  //       return
+  //     }
+  //
+  //     console.log(id, 'watch', newView.id)
+  //
+  //     if (
+  //       tabMeta.value?.state?.get(newView.id as string)?.has('filters') &&
+  //       !isUIAllowed('filterSync') &&
+  //       !isUIAllowed('filterChildrenRead')
+  //     ) {
+  //       nestedFilters.value = tabMeta.value?.state?.get(newView.id as string)?.get('filters') || []
+  //     }
+  //     if (tabMeta.value?.state?.get(newView.id as string)?.has('sorts') && !isUIAllowed('sortSync')) {
+  //       nestedFilters.value = tabMeta.value?.state?.get(newView.id as string)?.get('sorts') || []
+  //     }
+  //   },
+  //   { immediate: true },
+  // )
+  //
+  // /** keep view level state in tabMeta and restore on view change */
+  // const stopFilterWatch = watch(nestedFilters, (newFilters) => {
+  //   tabMeta.value.state = tabMeta.value.state || new Map()
+  //   if (!tabMeta.value.state.has(activeView.value.id)) {
+  //     tabMeta.value.state.set(activeView.value.id, new Map())
+  //   }
+  //   tabMeta.value.state.get(activeView.value.id)!.set('filters', newFilters)
+  // })
+  //
+  // const stopSortWatch = watch(sorts, (newSorts) => {
+  //
+  //   console.log(id, 'watch-sorts', activeView.value.id, newSorts)
+  //   tabMeta.value.state = tabMeta.value.state || new Map()
+  //   if (!tabMeta.value.state.has(activeView.value.id)) {
+  //     tabMeta.value.state.set(activeView.value.id, new Map())
+  //   }
+  //   tabMeta.value.state.get(activeView.value.id)!.set('sorts', newSorts)
+  // })
+
 
   return { sorts, loadSorts, addSort, deleteSort, saveOrUpdate }
 }

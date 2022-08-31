@@ -13,6 +13,8 @@ import {
   useUIPermission,
   watch,
 } from '#imports'
+import { TabItem } from '~/composables/useTabs'
+import { TabMetaInj } from '~/context'
 import type { Filter } from '~/lib'
 
 export function useViewFilters(
@@ -38,6 +40,8 @@ export function useViewFilters(
 
   const nestedMode = computed(() => isPublic.value || !isUIAllowed('filte rSync') || !isUIAllowed('filterChildrenRead'))
 
+  const tabMeta = inject(TabMetaInj, ref({ filterState: new Map() } as TabItem))
+
   const filters = computed<Filter[]>({
     get: () => (nestedMode.value ? currentFilters! : _filters.value),
     set: (value: Filter[]) => {
@@ -46,6 +50,8 @@ export function useViewFilters(
         if (isNestedRoot) nestedFilters.value = value
 
         nestedFilters.value = [...nestedFilters.value]
+
+        tabMeta.value.filterState!.set(view.value.id!, nestedFilters.value)
         reloadHook?.trigger()
         return
       }
@@ -62,7 +68,10 @@ export function useViewFilters(
   }
 
   const loadFilters = async (hookId?: string) => {
-    if (nestedMode.value) return
+    if (nestedMode.value) {
+      filters.value = tabMeta.value.filterState!.get(view.value.id!) || []
+      return
+    }
 
     try {
       if (hookId) {

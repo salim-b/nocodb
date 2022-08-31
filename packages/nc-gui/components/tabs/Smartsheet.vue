@@ -44,61 +44,14 @@ const { isUIAllowed } = useUIPermission()
 const { isGallery, isGrid, isForm, isLocked } = useProvideSmartsheetStore(activeView, meta)
 const {isUIAllowed} = useUIPermission()
 
-const { isGallery, isGrid, isForm, isLocked, nestedFilters, sorts } = useProvideSmartsheetStore(
+const { isGallery, isGrid, isForm, isLocked,  } = useProvideSmartsheetStore(
   activeView as Ref<TableType>,
   meta,
 )
 
 
-const id = Math.floor(1000 * Math.random())
-
-watch(
-  activeView,
-  (newView: ViewType) => {
-    if (!newView || !tabMeta.value?.state?.get(newView.id as string)) {
-      return
-    }
-
-    console.log(id, 'watch', newView.id)
-
-    if (
-      tabMeta.value?.state?.get(newView.id as string)?.has('filters') &&
-      !isUIAllowed('filterSync') &&
-      !isUIAllowed('filterChildrenRead')
-    ) {
-      nestedFilters.value = tabMeta.value?.state?.get(newView.id as string)?.get('filters') || []
-    }
-    if (tabMeta.value?.state?.get(newView.id as string)?.has('sorts') && !isUIAllowed('sortSync')) {
-      nestedFilters.value = tabMeta.value?.state?.get(newView.id as string)?.get('sorts') || []
-    }
-  },
-  { immediate: true },
-)
-
-/** keep view level state in tabMeta and restore on view change */
-const stopFilterWatch = watch(nestedFilters, (newFilters) => {
-  tabMeta.value.state = tabMeta.value.state || new Map()
-  if (!tabMeta.value.state.has(activeView.value.id)) {
-    tabMeta.value.state.set(activeView.value.id, new Map())
-  }
-  tabMeta.value.state.get(activeView.value.id)!.set('filters', newFilters)
-})
-
-watch(sorts, (newSorts) => {
-  tabMeta.value.state = tabMeta.value.state || new Map()
-  if (!tabMeta.value.state.has(activeView.value.id)) {
-    tabMeta.value.state.set(activeView.value.id, new Map())
-  }
-  tabMeta.value.state.get(activeView.value.id)!.set('sorts', newSorts)
-})
-
-onBeforeUnmount(() => {
-  stopFilterWatch()
-  stopSortWatch()
-})
-
 // provide the sidebar injection state
-provideSidebar('nc-right-sidebar', { useStorage: true, isOpen: true })
+provideSidebar({ storageKey: 'nc-right-sidebar' })
 
 // todo: move to store
 provide(MetaInj, meta)
