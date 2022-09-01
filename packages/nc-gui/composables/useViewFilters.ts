@@ -13,7 +13,7 @@ import {
   useUIPermission,
   watch,
 } from '#imports'
-import { TabItem } from '~/composables/useTabs'
+import type { TabItem } from '~/composables/useTabs'
 import { TabMetaInj } from '~/context'
 import type { Filter } from '~/lib'
 
@@ -51,7 +51,7 @@ export function useViewFilters(
 
         nestedFilters.value = [...nestedFilters.value]
 
-        tabMeta.value.filterState!.set(view.value.id!, nestedFilters.value)
+        tabMeta.value.filterState!.set(view!.value.id!, nestedFilters.value)
         reloadHook?.trigger()
         return
       }
