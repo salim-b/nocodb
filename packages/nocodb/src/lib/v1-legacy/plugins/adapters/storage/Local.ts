@@ -6,7 +6,7 @@ import mkdirp from 'mkdirp';
 import { IStorageAdapterV2, XcFile } from 'nc-plugin';
 import NcConfigFactory from '../../../../utils/NcConfigFactory';
 
-import request from 'request';
+import axios from 'axios';
 
 export default class Local implements IStorageAdapterV2 {
   constructor() {}
@@ -29,15 +29,15 @@ export default class Local implements IStorageAdapterV2 {
     return new Promise((resolve, reject) => {
       mkdirp.sync(path.dirname(destPath));
       const file = fs.createWriteStream(destPath);
-      const sendReq = request.get(url);
-
-      // verify response code
-      sendReq.on('response', (response) => {
-        if (response.statusCode !== 200) {
-          return reject('Response status was ' + response.statusCode);
+      
+      axios.get(url, { responseType: 'stream' }).then((response) => {
+        if (response.status !== 200) {
+          return reject('Response status was ' + response.status);
         }
-
-        sendReq.pipe(file);
+        response.data.pipe(file);
+      }).catch((error) => {
+        fs.unlink(destPath, () => reject(error.message));
+        reject(error);
       });
 
       // close() is async, call cb after close completes
@@ -48,11 +48,6 @@ export default class Local implements IStorageAdapterV2 {
           }
           resolve(null);
         });
-      });
-
-      // check for request errors
-      sendReq.on('error', (err) => {
-        fs.unlink(destPath, () => reject(err.message)); // delete the (partial) file and then return the error
       });
 
       file.on('error', (err) => {

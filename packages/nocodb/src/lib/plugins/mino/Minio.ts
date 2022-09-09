@@ -3,7 +3,7 @@ import path from 'path';
 
 import { Client as MinioClient } from 'minio';
 import { IStorageAdapterV2, XcFile } from 'nc-plugin';
-import request from 'request';
+import axios from 'axios';
 
 export default class Minio implements IStorageAdapterV2 {
   private minioClient: MinioClient;
@@ -95,37 +95,29 @@ export default class Minio implements IStorageAdapterV2 {
     };
     return new Promise((resolve, reject) => {
       // Configure the file stream and obtain the upload parameters
-      request(
-        {
-          url: url,
-          encoding: null,
-        },
-        (err, _, body) => {
-          if (err) return reject(err);
+      axios.get(url).then((response) => {
+        uploadParams.Body = response.data;
+        uploadParams.Key = key;
 
-          uploadParams.Body = body;
-          uploadParams.Key = key;
-
-          // uploadParams.Body = fileStream;
-          // uploadParams.Key = key;
-          const metaData = {
-            // 'Content-Type': file.mimetype
-            // 'X-Amz-Meta-Testing': 1234,
-            // 'run': 5678
-          };
-          // call S3 to retrieve upload file to specified bucket
-          this.minioClient
-            .putObject(this.input?.bucket, key, body, metaData)
-            .then(() => {
-              resolve(
-                `http${this.input.useSSL ? 's' : ''}://${this.input.endPoint}:${
-                  this.input.port
-                }/${this.input.bucket}/${key}`
-              );
-            })
-            .catch(reject);
-        }
-      );
+        // uploadParams.Body = fileStream;
+        // uploadParams.Key = key;
+        const metaData = {
+          // 'Content-Type': file.mimetype
+          // 'X-Amz-Meta-Testing': 1234,
+          // 'run': 5678
+        };
+        // call S3 to retrieve upload file to specified bucket
+        this.minioClient
+          .putObject(this.input?.bucket, key, response.data, metaData)
+          .then(() => {
+            resolve(
+              `http${this.input.useSSL ? 's' : ''}://${this.input.endPoint}:${
+                this.input.port
+              }/${this.input.bucket}/${key}`
+            );
+          })
+          .catch(reject);
+      }).catch(reject);
     });
   }
 }

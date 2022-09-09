@@ -3,7 +3,7 @@ import path from 'path';
 
 import { Storage, StorageOptions } from '@google-cloud/storage';
 import { IStorageAdapterV2, XcFile } from 'nc-plugin';
-import request from 'request';
+import axios from 'axios';
 
 export default class Gcs implements IStorageAdapterV2 {
   private storageClient: Storage;
@@ -104,22 +104,14 @@ export default class Gcs implements IStorageAdapterV2 {
   fileCreateByUrl(destPath: string, url: string): Promise<any> {
     return new Promise((resolve, reject) => {
       // Configure the file stream and obtain the upload parameters
-      request(
-        {
-          url: url,
-          encoding: null,
-        },
-        (err, _, body) => {
-          if (err) return reject(err);
-
-          this.storageClient
+      axios.get(url).then((response) => {
+        this.storageClient
             .bucket(this.bucketName)
             .file(destPath)
-            .save(body)
+            .save(response.data)
             .then((res) => resolve(res))
             .catch(reject);
-        }
-      );
+      }).catch(reject);
     });
   }
 }
