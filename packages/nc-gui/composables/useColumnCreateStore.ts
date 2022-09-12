@@ -11,14 +11,16 @@ const useForm = Form.useForm
 const columnToValidate = [UITypes.Email, UITypes.URL, UITypes.PhoneNumber]
 
 const [useProvideColumnCreateStore, useColumnCreateStore] = createInjectionState(
-  (meta: Ref<TableType | undefined>, column: Ref<ColumnType | undefined>) => {
-    const { sqlUi } = useProject()
+  (meta: Ref<TableType | undefined>, column?: Ref<ColumnType | undefined>) => {
+    const { sqlUis } = useProject()
     const { $api } = useNuxtApp()
     const { getMeta } = useMetas()
     const { t } = useI18n()
     const { $e } = useNuxtApp()
 
-    const isEdit = computed(() => !!column.value?.id)
+    const sqlUi = ref(meta.value?.base_id ? sqlUis.value[meta.value?.base_id] : sqlUis.value[0])
+
+    const isEdit = computed(() => !!column?.value?.id)
 
     const idType = null
 
