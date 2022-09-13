@@ -1947,6 +1947,8 @@ class SqliteClient extends KnexClient {
     const defaultValue = getDefaultValue(n);
     let shouldSanitize = true;
     if (change === 2) {
+      let q0 = this.genQuery('PRAGMA foreign_keys = OFF;');
+
       let q1 = this.genQuery(
         `ALTER TABLE ?? RENAME COLUMN ?? TO ??;`,
         [t, o.cn, `${o.cno}_old`],
@@ -1964,7 +1966,9 @@ class SqliteClient extends KnexClient {
 
       let q4 = this.genQuery(`ALTER TABLE ?? DROP COLUMN ??;`, [t, `${o.cno}_old`], shouldSanitize);
 
-      query = `${q1}${q2}${q3}${q4}`;
+      let q5 = this.genQuery('PRAGMA foreign_keys = ON;');
+
+      query = `${q0}${q1}${q2}${q3}${q4}${q5}`;
     } else if (change === 0) {
       query = existingQuery ? ',' : '';
       query += this.genQuery(`?? ${n.dt}`, [n.cn], shouldSanitize);
