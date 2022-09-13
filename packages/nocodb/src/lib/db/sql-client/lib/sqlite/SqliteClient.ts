@@ -1514,12 +1514,13 @@ class SqliteClient extends KnexClient {
             oldColumn,
             upQuery
           );
-          downQuery += this.alterTableChangeColumn(
-            args.table,
-            oldColumn,
-            args.columns[i],
-            downQuery
-          );
+          downQuery += ';';
+          // downQuery += this.alterTableChangeColumn(
+          //   args.table,
+          //   oldColumn,
+          //   args.columns[i],
+          //   downQuery
+          // );
         } else if (args.columns[i].altered & 1) {
           // col addition
           upQuery += this.alterTableAddColumn(
@@ -1528,12 +1529,13 @@ class SqliteClient extends KnexClient {
             oldColumn,
             upQuery
           );
-          downQuery += this.alterTableRemoveColumn(
-            args.table,
-            args.columns[i],
-            oldColumn,
-            downQuery
-          );
+          downQuery += ';';
+          // downQuery += this.alterTableRemoveColumn(
+          //   args.table,
+          //   args.columns[i],
+          //   oldColumn,
+          //   downQuery
+          // );
         }
       }
 
@@ -1563,7 +1565,7 @@ class SqliteClient extends KnexClient {
           { sql: this.querySeparator() + upQuery },
           ...afterUpdate.upStatement,
         ],
-        downStatement: [{ sql: this.querySeparator() + downQuery }],
+        downStatement: [{ sql: ';' }],
       };
     } catch (e) {
       log.ppe(e, _func);
