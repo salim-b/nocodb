@@ -549,7 +549,7 @@ export default async function formulaQueryBuilderv2(
         //   }
         //   break;
         case 'CONCAT':
-          if (knex.client === 'sqlite3') {
+          if (knex.clientType() === 'sqlite3') {
             if (pt.arguments.length > 1) {
               return fn(
                 {
@@ -614,7 +614,7 @@ export default async function formulaQueryBuilderv2(
           .map((arg) => {
             const query = fn(arg).toQuery();
             if (pt.callee.name === 'CONCAT') {
-              if (knex.client === 'mysql2') {
+              if (knex.clientType() === 'mysql2') {
                 // mysql2: CONCAT() returns NULL if any argument is NULL.
                 // adding IFNULL to convert NULL values to empty strings
                 return `IFNULL(${query}, '')`;
@@ -655,7 +655,7 @@ export default async function formulaQueryBuilderv2(
       let sql = `${left} ${pt.operator} ${right}${colAlias}`;
 
       // handle NULL values when calling CONCAT for sqlite3
-      if (pt.left.fnName === 'CONCAT' && knex.client === 'sqlite3') {
+      if (pt.left.fnName === 'CONCAT' && knex.clientType() === 'sqlite3') {
         sql = `COALESCE(${left}, '') ${pt.operator} COALESCE(${right},'')${colAlias}`;
       }
 
