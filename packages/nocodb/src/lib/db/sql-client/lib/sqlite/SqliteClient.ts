@@ -1545,9 +1545,9 @@ class SqliteClient extends KnexClient {
       );
 
       if (synchronous) {
-        upQuery.split(';').map(async (query) => {
+        for (const query of upQuery.split(';')) {
           if (query.trim().length) await this.sqlClient.raw(query);
-        });
+        }
       } else {
         await Promise.all(
           upQuery.split(';').map(async (query) => {
