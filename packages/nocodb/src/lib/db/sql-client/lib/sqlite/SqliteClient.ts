@@ -1951,7 +1951,7 @@ class SqliteClient extends KnexClient {
 
       let q1 = this.genQuery(
         `ALTER TABLE ?? RENAME COLUMN ?? TO ??;`,
-        [t, o.cn, `${o.cno}_old`],
+        [t, o.cn, `${o.cno}_nc_alter`],
         shouldSanitize
       );
       
@@ -1962,9 +1962,9 @@ class SqliteClient extends KnexClient {
       q2 += n.rqd ? ` NOT NULL` : ' ';
       q2 = this.genQuery(`ALTER TABLE ?? ${q2};`, [t], shouldSanitize);
 
-      let q3 = this.genQuery(`UPDATE ?? SET ?? = ??;`, [t, n.cn, `${o.cno}_old`], shouldSanitize);
+      let q3 = this.genQuery(`UPDATE ?? SET ?? = ??;`, [t, n.cn, `${o.cno}_nc_alter`], shouldSanitize);
 
-      let q4 = this.genQuery(`ALTER TABLE ?? DROP COLUMN ??;`, [t, `${o.cno}_old`], shouldSanitize);
+      let q4 = this.genQuery(`ALTER TABLE ?? DROP COLUMN ??;`, [t, `${o.cno}_nc_alter`], shouldSanitize);
 
       let q5 = this.genQuery('PRAGMA foreign_keys = ON;');
 
