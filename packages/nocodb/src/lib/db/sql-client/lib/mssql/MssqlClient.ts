@@ -356,13 +356,11 @@ class MssqlClient extends KnexClient {
 
     try {
       /** ************** START : create _evolution table if not exists *************** */
-      const exists = await this.sqlClient.schema.hasTable(
-        this.getTnPath(args.tn)
-      );
+      const exists = await this.sqlClient.schema.hasTable(args.tn);
 
       if (!exists) {
         await this.sqlClient.schema.createTable(
-          this.getTnPath(args.tn),
+          args.tn,
           function (table) {
             table.increments();
             table.string('title').notNullable();
@@ -396,9 +394,7 @@ class MssqlClient extends KnexClient {
     log.api(`${_func}:args:`, args);
 
     try {
-      result.data.value = await this.sqlClient.schema.hasTable(
-        this.getTnPath(args.tn)
-      );
+      result.data.value = await this.sqlClient.schema.hasTable(args.tn);
     } catch (e) {
       log.ppe(e, _func);
       throw e;
@@ -2059,13 +2055,13 @@ class MssqlClient extends KnexClient {
       /** ************** create up & down statements *************** */
       const upStatement =
         this.querySeparator() +
-        this.sqlClient.schema.dropTable(this.getTnPath(args.tn)).toString();
+        this.sqlClient.schema.dropTable(args.tn).toString();
       let downQuery = this.querySeparator() + this.createTable(args.tn, args);
 
       this.emit(`Success : ${upStatement}`);
 
       let relationsList: any = await this.relationList({
-        tn: this.getTnPath(args.tn),
+        tn: args.tn,
       });
 
       relationsList = relationsList.data.list;
@@ -2074,7 +2070,7 @@ class MssqlClient extends KnexClient {
         downQuery +=
           this.querySeparator() +
           (await this.sqlClient.schema
-            .table(this.getTnPath(relation.tn), function (table) {
+            .table(relation.tn, function (table) {
               table = table
                 .foreign(relation.cn, null)
                 .references(relation.rcn)
@@ -2103,7 +2099,7 @@ class MssqlClient extends KnexClient {
       for (const { key_name, non_unique, cn } of indexList) {
         if (!(key_name in indexesMap)) {
           indexesMap[key_name] = {
-            tn: this.getTnPath(args.tn),
+            tn: args.tn,
             indexName: key_name,
             non_unique,
             columns: [],
@@ -2129,7 +2125,7 @@ class MssqlClient extends KnexClient {
       }
 
       /** ************** drop tn *************** */
-      await this.sqlClient.schema.dropTable(this.getTnPath(args.tn));
+      await this.sqlClient.schema.dropTable(args.tn);
 
       /** ************** return files *************** */
       result.data.object = {
