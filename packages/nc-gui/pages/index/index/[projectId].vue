@@ -68,7 +68,10 @@ onMounted(async () => {
   <div
     class="update-project bg-white relative flex-auto flex flex-col justify-center gap-2 p-8 md:(rounded-lg border-1 border-gray-200 shadow-xl)"
   >
-    <LazyGeneralNocoIcon class="color-transition hover:(ring ring-accent)" :class="[isLoading ? 'animated-bg-gradient' : '']" />
+    <LazyGeneralNocoIcon
+      class="color-transition hover:(ring ring-accent ring-opacity-100)"
+      :class="[isLoading ? 'animated-bg-gradient' : '']"
+    />
 
     <div
       class="color-transition transform group absolute top-5 left-5 text-4xl rounded-full bg-white cursor-pointer"
@@ -122,11 +125,11 @@ onMounted(async () => {
     }
 
     &:hover::after {
-      @apply transform scale-110 ring ring-accent;
+      @apply transform scale-110 ring ring-accent ring-opacity-100;
     }
 
     &:active::after {
-      @apply ring ring-accent;
+      @apply ring ring-accent ring-opacity-100;
     }
   }
 }

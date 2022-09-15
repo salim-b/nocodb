@@ -56,7 +56,7 @@ function resetError() {
         class="bg-white mt-[60px] relative flex flex-col justify-center gap-2 w-full max-w-[500px] mx-auto p-8 md:(rounded-lg border-1 border-gray-200 shadow-xl)"
       >
         <LazyGeneralNocoIcon
-          class="color-transition hover:(ring ring-accent)"
+          class="color-transition hover:(ring ring-accent ring-opacity-100)"
           :class="[isLoading ? 'animated-bg-gradient' : '']"
         />
 
@@ -127,11 +127,11 @@ function resetError() {
     }
 
     &:hover::after {
-      @apply transform scale-110 ring ring-accent;
+      @apply transform scale-110 ring ring-accent ring-opacity-100;
     }
 
     &:active::after {
-      @apply ring ring-accent;
+      @apply ring ring-accent ring-opacity-100;
     }
   }
 }
