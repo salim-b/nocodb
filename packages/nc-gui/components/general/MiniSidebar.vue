@@ -78,7 +78,7 @@ const logout = () => {
                 </span>
               </template>
 
-              <a-menu-item class="active:(ring ring-accent)">
+              <a-menu-item class="active:(ring ring-accent ring-opacity-100)">
                 <div
                   v-e="['c:project:create:xcdb']"
                   class="group flex items-center gap-2 py-2 hover:text-primary"
@@ -89,7 +89,7 @@ const logout = () => {
                 </div>
               </a-menu-item>
 
-              <a-menu-item class="rounded-b active:(ring ring-accent)">
+              <a-menu-item class="rounded-b active:(ring ring-accent ring-opacity-100)">
                 <div
                   v-e="['c:project:create:extdb']"
                   class="group flex items-center gap-2 py-2 hover:text-primary"

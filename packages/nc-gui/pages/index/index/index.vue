@@ -134,7 +134,7 @@ onBeforeMount(loadProjects)
     class="bg-white relative flex flex-col justify-center gap-2 w-full p-8 pt-0 md:(pt-8) rounded-lg border-1 border-gray-200 shadow-xl"
   >
     <LazyGeneralNocoIcon
-      class="hidden md:block color-transition hover:(ring ring-accent)"
+      class="hidden md:block color-transition hover:(ring ring-accent ring-opacity-100)"
       :class="[isLoading ? 'animated-bg-gradient' : '']"
     />
 
@@ -151,7 +151,7 @@ onBeforeMount(loadProjects)
 
       <a-tooltip title="Reload projects">
         <div
-          class="transition-all duration-200 h-full flex-0 flex items-center group hover:ring active:(ring ring-accent) rounded-full mt-1"
+          class="transition-all duration-200 h-full flex-0 flex items-center group hover:ring active:(ring ring-accent ring-opacity-100) rounded-full mt-1"
           :class="isLoading ? 'animate-spin ring ring-gray-200' : ''"
         >
           <MdiRefresh
@@ -288,7 +288,7 @@ onBeforeMount(loadProjects)
 
 <style scoped>
 .nc-action-btn {
-  @apply text-gray-500 group-hover:text-accent active:(ring ring-accent) cursor-pointer p-2 w-[30px] h-[30px] hover:bg-gray-300/50 rounded-full;
+  @apply text-gray-500 group-hover:text-accent active:(ring ring-accent ring-opacity-100) cursor-pointer p-2 w-[30px] h-[30px] hover:bg-gray-300/50 rounded-full;
 }
 
 .nc-new-project-menu {
@@ -301,11 +301,11 @@ onBeforeMount(loadProjects)
   }
 
   &:hover::after {
-    @apply transform scale-110 ring ring-accent;
+    @apply transform scale-110 ring ring-accent ring-opacity-100;
   }
 
   &:active::after {
-    @apply ring ring-accent;
+    @apply ring ring-accent ring-opacity-100;
   }
 }
 
