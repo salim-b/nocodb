@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { ColumnType, TableType, ViewType } from 'nocodb-sdk'
-import { onBeforeUnmount, onUnmounted } from 'vue'
-import type { Ref } from 'vue'
+import type { ColumnType, TableType } from 'nocodb-sdk'
 import SmartsheetGrid from '../smartsheet/Grid.vue'
 import {
   ActiveViewInj,
@@ -37,21 +35,14 @@ const fields = ref<ColumnType[]>([])
 provide(TabMetaInj, ref(activeTab))
 const meta = computed<TableType>(() => metas.value?.[activeTab?.id as string])
 
-const reloadEventHook = createEventHook<void>()
+const reloadEventHook = createEventHook<void | boolean>()
 const openNewRecordFormHook = createEventHook<void>()
 
-const { isUIAllowed } = useUIPermission()
 const { isGallery, isGrid, isForm, isLocked } = useProvideSmartsheetStore(activeView, meta)
-const {isUIAllowed} = useUIPermission()
-
-const { isGallery, isGrid, isForm, isLocked,  } = useProvideSmartsheetStore(
-  activeView as Ref<TableType>,
-  meta,
-)
 
 
 // provide the sidebar injection state
-provideSidebar({ storageKey: 'nc-right-sidebar' })
+provideSidebar('nc-right-sidebar')
 
 // todo: move to store
 provide(MetaInj, meta)
