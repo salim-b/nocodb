@@ -5,6 +5,8 @@ import {
   computed,
   createEventHook,
   ref,
+  tryOnScopeDispose,
+  unref,
   useApi,
   useGlobal,
   useInjectionState,
@@ -69,9 +71,9 @@ const [setup, use] = useInjectionState(() => {
     }
   }
 
-  async function loadTables() {
-    if (project.value.id) {
-      const tablesResponse = await api.dbTable.list(project.value.id, {
+  async function loadTables(id?: string) {
+    if (id || project.value.id) {
+      const tablesResponse = await api.dbTable.list((id || project.value.id)!, {
         includeM2M: includeM2M.value,
       })
 
@@ -98,9 +100,10 @@ const [setup, use] = useInjectionState(() => {
       return
     }
 
-    await loadProjectRoles(project.value.id || projectId.value, isSharedBase.value, projectId.value)
+    await loadProjectRoles(id || project.value.id || projectId.value, isSharedBase.value,
+      projectId.value)
 
-    await loadTables()
+    await loadTables(id)
 
     setTheme(projectMeta.value?.theme)
 
@@ -174,7 +177,11 @@ export function useProject() {
   const state = use()
 
   if (!state) {
-    return setup()
+    const setupState = setup()
+
+    tryOnScopeDispose(setupState.reset)
+
+    return setupState
   }
 
   return state
