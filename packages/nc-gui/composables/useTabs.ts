@@ -124,7 +124,6 @@ const [setup, use] = useInjectionState(() => {
 
     if (tab) {
       const isActive = tabs.value.indexOf(tab) === previousActiveTabIndex.value
-
       Object.assign(tab, newTabItemProps)
 
       if (isActive && tab.title)

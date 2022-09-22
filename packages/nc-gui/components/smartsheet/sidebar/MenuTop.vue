@@ -12,7 +12,6 @@ import {
   message,
   onMounted,
   ref,
-  resolveComponent,
   useApi,
   useDialog,
   useI18n,

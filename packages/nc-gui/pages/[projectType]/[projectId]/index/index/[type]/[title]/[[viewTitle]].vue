@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { TabItem } from '~/lib'
-import { TabMetaInj, computed, inject, ref, until, useMetas, useProject, useRoute } from '#imports'
+import { TabMetaInj, until, computed, inject, useMetas, useProject, useRoute } from '#imports'
 
 const { getMeta } = useMetas()
 

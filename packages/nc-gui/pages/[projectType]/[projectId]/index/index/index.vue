@@ -1,17 +1,9 @@
 <script lang="ts" setup>
 import type { UploadChangeParam, UploadFile } from 'ant-design-vue'
-import {
-  message,
+import { message,
   ref,
-  resolveComponent,
-  useDialog,
-  useDropZone,
-  useFileDialog,
-  useNuxtApp,
-  useProject,
-  useUIPermission,
-  watch,
-} from '#imports'
+  resolveComponent, useDialog, useDropZone, useFileDialog, useNuxtApp, useProject, useUIPermission,
+  watch,} from '#imports'
 
 const dropZone = ref<HTMLDivElement>()
 
