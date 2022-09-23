@@ -35,8 +35,8 @@ const fields = ref<ColumnType[]>([])
 provide(TabMetaInj, ref(activeTab))
 const meta = computed<TableType>(() => metas.value?.[activeTab?.id as string])
 
-const reloadEventHook = createEventHook<void>()
-const reloadViewMetaEventHook = createEventHook<void>()
+const reloadEventHook = createEventHook<void | boolean>()
+const reloadViewMetaEventHook = createEventHook<void | boolean>()
 const openNewRecordFormHook = createEventHook<void>()
 
 const { isGallery, isGrid, isForm, isLocked } = useProvideSmartsheetStore(activeView, meta)

@@ -209,7 +209,7 @@ const [useProvideLTARStore, useLTARStore] = useInjectionState(
               return false
             }
 
-            reloadData?.()
+            reloadData?.(false)
 
             /** reload child list if not a new row */
             if (!isNewRow?.value) {
@@ -251,7 +251,7 @@ const [useProvideLTARStore, useLTARStore] = useInjectionState(
       } catch (e: any) {
         message.error(`${t('msg.error.unlinkFailed')}: ${await extractSdkResponseErrorMsg(e)}`)
       }
-      reloadData?.()
+      reloadData?.(false)
       // todo: reload table data and children list
       // this.$emit('loadTableData');
       // if (this.isForm && this.$refs.childList) {
@@ -298,7 +298,7 @@ const [useProvideLTARStore, useLTARStore] = useInjectionState(
       //   this.$refs.childList.loadData();
       // }
 
-      reloadData?.()
+      reloadData?.(false)
     }
 
     // watchers
