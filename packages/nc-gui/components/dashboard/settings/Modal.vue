@@ -4,6 +4,7 @@ import AuditTab from './AuditTab.vue'
 import AppStore from './AppStore.vue'
 import Metadata from './Metadata.vue'
 import UIAcl from './UIAcl.vue'
+import DataSources from './DataSources.vue'
 import Misc from './Misc.vue'
 import Erd from './Erd.vue'
 import { useNuxtApp } from '#app'
@@ -100,6 +101,10 @@ const tabsInfo: TabGroup = {
     title: t('title.projMeta'),
     icon: MultipleTableIcon,
     subTabs: {
+      dataSources: {
+        title: 'Data Sources',
+        body: DataSources,
+      },
       metaData: {
         // Metadata
         title: t('title.metadata'),

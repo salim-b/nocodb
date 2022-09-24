@@ -18,7 +18,7 @@ const [useProvideColumnCreateStore, useColumnCreateStore] = createInjectionState
     const { t } = useI18n()
     const { $e } = useNuxtApp()
 
-    const sqlUi = ref(meta.value?.base_id ? sqlUis.value[meta.value?.base_id] : sqlUis.value[0])
+    const sqlUi = ref(meta.value?.base_id ? sqlUis.value[meta.value?.base_id] : Object.values(sqlUis.value)[0])
 
     const isEdit = computed(() => !!column?.value?.id)
 
