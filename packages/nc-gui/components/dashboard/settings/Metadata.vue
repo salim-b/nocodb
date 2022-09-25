@@ -6,6 +6,12 @@ import MdiReload from '~icons/mdi/reload'
 import MdiDatabaseSync from '~icons/mdi/database-sync'
 import { extractSdkResponseErrorMsg } from '~/utils'
 
+interface Props {
+  baseId: string
+}
+
+const props = defineProps<Props>()
+
 const { $api } = useNuxtApp()
 const { project, loadTables } = useProject()
 const { t } = useI18n()
@@ -20,7 +26,7 @@ async function loadMetaDiff() {
 
     isLoading = true
     isDifferent = false
-    metadiff = await $api.project.metaDiffGet(project.value?.id)
+    metadiff = await $api.base.metaDiffGet(project.value?.id, props.baseId)
     for (const model of metadiff) {
       if (model.detectedChanges?.length > 0) {
         model.syncState = model.detectedChanges.map((el: any) => el?.msg).join(', ')
@@ -39,7 +45,7 @@ async function syncMetaDiff() {
     if (!project.value?.id || !isDifferent) return
 
     isLoading = true
-    await $api.project.metaDiffSync(project.value.id)
+    await $api.base.metaDiffSync(project.value.id, props.baseId)
     // Table metadata recreated successfully
     message.info(t('msg.info.metaDataRecreated'))
     await loadTables()

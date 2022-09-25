@@ -65,3 +65,12 @@ export enum LockType {
   Locked = 'locked',
   Collaborative = 'collaborative',
 }
+
+export enum DataSourcesSubTab {
+  New = 'New',
+  Metadata = 'Metadata',
+  ERD = 'ERD',
+  UIAcl = 'UI ACL',
+  Misc = 'Misc',
+  Edit = 'Edit',
+}

@@ -10,9 +10,10 @@ import { useNuxtApp } from '#app'
 interface Props {
   modelValue?: boolean
   tableMeta: TableType
+  baseId: string
 }
 
-const { modelValue = false, tableMeta } = defineProps<Props>()
+const { modelValue = false, tableMeta, baseId } = defineProps<Props>()
 
 const emit = defineEmits(['update:modelValue', 'updated'])
 
@@ -48,11 +49,11 @@ const validators = computed(() => {
         validator: (rule: any, value: any) => {
           return new Promise<void>((resolve, reject) => {
             let tableNameLengthLimit = 255
-            if (isMysql) {
+            if (isMysql(baseId)) {
               tableNameLengthLimit = 64
-            } else if (isPg) {
+            } else if (isPg(baseId)) {
               tableNameLengthLimit = 63
-            } else if (isMssql) {
+            } else if (isMssql(baseId)) {
               tableNameLengthLimit = 128
             }
             const projectPrefix = project?.value?.prefix || ''
