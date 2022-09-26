@@ -5,18 +5,16 @@ import {
   definePageMeta,
   message,
   navigateTo,
-  onBeforeMount,
   onBeforeUnmount,
   onKeyStroke,
   onMounted,
   openLink,
   projectThemeColors,
-  provide,
   ref,
   useCopy,
   useGlobal,
   useI18n,
-  useProject,
+  useProject2,
   useRoute,
   useRouter,
   useSidebar,
@@ -37,7 +35,9 @@ const router = useRouter()
 
 const { appInfo, token, signOut, signedIn, user, currentVersion } = useGlobal()
 
-const { project, isSharedBase, loadProjectMetaInfo, projectMetaInfo, saveTheme, loadProject, reset } = useProject()
+const { project, isSharedBase, loadProjectMetaInfo, projectMetaInfo, saveTheme, reset, onLoad } = useProject2(
+  computed(() => route.params.projectId as string),
+)
 
 const { clearTabs, addTab } = useTabs()
 
@@ -47,9 +47,6 @@ const { copy } = useCopy()
 
 const isLocked = ref(false)
 
-provide('TreeViewIsLockedInj', isLocked)
-
-// create a new sidebar state
 const { isOpen, toggle, toggleHasSidebar } = useSidebar('nc-left-sidebar', { hasSidebar: false, isOpen: false })
 
 const dialogOpen = ref(false)
@@ -61,9 +58,31 @@ const dropdownOpen = ref(false)
 /** Sidebar ref */
 const sidebar = ref()
 
-const email = computed(() => user.value?.email ?? '---')
+clearTabs()
 
-const logout = () => {
+onKeyStroke(
+  'Escape',
+  () => {
+    dropdownOpen.value = false
+  },
+  { eventName: 'keydown' },
+)
+
+onLoad(async () => {
+  if (!route.params.type && isUIAllowed('teamAndAuth')) {
+    addTab({ type: TabType.AUTH, title: t('title.teamAndAuth') })
+  }
+
+  /** If v1 url found navigate to corresponding new url */
+  const { type, name, view } = route.query
+  if (type && name) {
+    await router.replace(`/nc/${route.params.projectId}/${type}/${name}${view ? `/${view}` : ''}`)
+  }
+})
+
+onBeforeUnmount(reset)
+
+function logout() {
   signOut()
   navigateTo('/signin')
 }
@@ -73,9 +92,8 @@ function toggleDialog(value?: boolean, key?: string) {
   openDialogKey.value = key
 }
 
-const handleThemeColor = async (mode: 'swatch' | 'primary' | 'accent', color: string) => {
+async function handleThemeColor(mode: 'swatch' | 'primary' | 'accent', color: string) {
   const tinycolor = await import('tinycolor2').then((d) => d.default)
-
   switch (mode) {
     case 'swatch': {
       const tcolor = tinycolor(color)
@@ -112,7 +130,7 @@ const handleThemeColor = async (mode: 'swatch' | 'primary' | 'accent', color: st
   }
 }
 
-const copyProjectInfo = async () => {
+async function copyProjectInfo() {
   try {
     await loadProjectMetaInfo()
 
@@ -130,7 +148,7 @@ const copyProjectInfo = async () => {
   }
 }
 
-const copyAuthToken = async () => {
+async function copyAuthToken() {
   try {
     await copy(token.value!)
     // Copied to clipboard
@@ -140,37 +158,6 @@ const copyAuthToken = async () => {
     message.error(e.message)
   }
 }
-
-onKeyStroke(
-  'Escape',
-  () => {
-    dropdownOpen.value = false
-  },
-  { eventName: 'keydown' },
-)
-
-clearTabs()
-
-onBeforeMount(async () => {
-  await loadProject(route.params.projectId as string)
-
-  if (!route.params.type && isUIAllowed('teamAndAuth')) {
-    addTab({ type: TabType.AUTH, title: t('title.teamAndAuth') })
-  }
-
-  /** If v1 url found navigate to corresponding new url */
-  const { type, name, view } = route.query
-  if (type && name) {
-    await router.replace(`/nc/${route.params.projectId}/${type}/${name}${view ? `/${view}` : ''}`)
-  }
-})
-
-onMounted(() => {
-  toggle(true)
-  toggleHasSidebar(true)
-})
-
-onBeforeUnmount(reset)
 </script>
 
 <template>
@@ -457,7 +444,7 @@ onBeforeUnmount(reset)
                         <nuxt-link v-e="['c:navbar:user:email']" class="nc-project-menu-item group !no-underline" to="/user">
                           <MdiAt class="mt-1 group-hover:text-accent" />&nbsp;
 
-                          <span class="prose-sm">{{ email }}</span>
+                          <span class="prose-sm">{{ user?.email || '---' }}</span>
                         </nuxt-link>
                       </a-menu-item>
 
