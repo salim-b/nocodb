@@ -22,7 +22,7 @@ const [setup, use] = useInjectionState(() => {
   const projectType = $computed(() => route.params.projectType as string)
 
   const previousActiveTabIndex = ref(-1)
-  const activeTabIndex: WritableComputedRef<number> = computed({
+  const activeTabIndex = computed<number>({
     get() {
       const routeName = route.name as string
 
