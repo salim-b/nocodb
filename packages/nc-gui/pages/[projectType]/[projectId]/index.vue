@@ -14,7 +14,7 @@ import {
   useCopy,
   useGlobal,
   useI18n,
-  useProject2,
+  useProject,
   useRoute,
   useRouter,
   useSidebar,
@@ -35,7 +35,7 @@ const router = useRouter()
 
 const { appInfo, token, signOut, signedIn, user, currentVersion } = useGlobal()
 
-const { project, isSharedBase, loadProjectMetaInfo, projectMetaInfo, saveTheme, reset, onLoad } = useProject2(
+const { project, isSharedBase, loadProjectMetaInfo, projectMetaInfo, saveTheme, reset, onLoad } = useProject(
   computed(() => route.params.projectId as string),
 )
 
@@ -44,8 +44,6 @@ const { clearTabs, addTab } = useTabs()
 const { isUIAllowed } = useUIPermission()
 
 const { copy } = useCopy()
-
-const isLocked = ref(false)
 
 const { isOpen, toggle, toggleHasSidebar } = useSidebar('nc-left-sidebar', { hasSidebar: false, isOpen: false })
 
@@ -476,7 +474,7 @@ async function copyAuthToken() {
           </div>
         </div>
 
-        <LazyDashboardTreeView :is-locked="isLocked" />
+        <LazyDashboardTreeView />
       </a-layout-sider>
     </template>
 
