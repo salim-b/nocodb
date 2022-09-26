@@ -476,7 +476,7 @@ async function copyAuthToken() {
           </div>
         </div>
 
-        <LazyDashboardTreeView />
+        <LazyDashboardTreeView :is-locked="isLocked" />
       </a-layout-sider>
     </template>
 
