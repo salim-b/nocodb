@@ -386,9 +386,11 @@ onMounted(async () => {
             <div class="text-center">{{ formViewData.success_msg || 'Successfully submitted form data' }}</div>
           </template>
         </a-alert>
+
         <div v-if="formViewData.show_blank_form" class="text-gray-400 mt-4">
           New form will be loaded after {{ secondsRemain }} seconds
         </div>
+
         <div v-if="formViewData.submit_another_form" class="text-center mt-4">
           <a-button type="primary" size="large" @click="submitted = false"> Submit Another Form</a-button>
         </div>
@@ -397,7 +399,7 @@ onMounted(async () => {
   </a-row>
 
   <a-row v-else class="h-full flex">
-    <a-col v-if="isEditable" :span="8" class="shadow p-2 md:p-4 h-full overflow-auto scrollbar-thin-primary nc-form-left-drawer">
+    <a-col v-if="isEditable" :span="8" class="shadow p-2 md:p-4 h-full overflow-auto scrollbar-thin-dull nc-form-left-drawer">
       <div class="flex flex-wrap gap-2">
         <div class="flex-1 text-lg">
           {{ $t('objects.fields') }}
@@ -483,7 +485,7 @@ onMounted(async () => {
             </button>
 
             <template #overlay>
-              <LazySmartsheetColumnEditOrAddProvider
+              <SmartsheetColumnEditOrAddProvider
                 v-if="showColumnDropdown"
                 @submit="submitCallback"
                 @cancel="showColumnDropdown = false"
@@ -496,7 +498,7 @@ onMounted(async () => {
       </Draggable>
     </a-col>
 
-    <a-col v-if="formViewData" :span="isEditable ? 16 : 24" class="h-full overflow-auto scrollbar-thin-primary">
+    <a-col v-if="formViewData" :span="isEditable ? 16 : 24" class="h-full overflow-auto scrollbar-thin-dull">
       <div class="h-[200px] bg-primary bg-opacity-75">
         <!-- for future implementation of cover image -->
       </div>
@@ -513,11 +515,11 @@ onMounted(async () => {
         <a-form ref="formRef" :model="formState" class="nc-form" no-style>
           <a-card class="!rounded !shadow !m-2 md:!m-4 xl:!m-8" :body-style="{ paddingLeft: '0px', paddingRight: '0px' }">
             <!-- Header -->
-            <div v-if="isEditable" class="px-4">
+            <div v-if="isEditable" class="px-4 lg:px-12">
               <a-form-item v-if="isEditable">
                 <a-input
                   v-model:value="formViewData.heading"
-                  class="w-full !font-bold !text-4xl !border-0 !border-b-1 !border-dashed"
+                  class="w-full !font-bold !text-4xl !border-0 !border-b-1 !border-dashed !rounded-none !border-gray-400"
                   :style="{ borderRightWidth: '0px !important' }"
                   size="large"
                   hide-details
@@ -531,11 +533,11 @@ onMounted(async () => {
             <div v-else class="px-4 ml-3 w-full text-bold text-4xl">{{ formViewData.heading }}</div>
 
             <!-- Sub Header -->
-            <div v-if="isEditable" class="px-4">
+            <div v-if="isEditable" class="px-4 lg:px-12">
               <a-form-item>
                 <a-input
                   v-model:value="formViewData.subheading"
-                  class="w-full !border-0 !border-b-1 !border-dashed"
+                  class="w-full !border-0 !border-b-1 !border-dashed !rounded-none !border-gray-400"
                   :style="{ borderRightWidth: '0px !important' }"
                   size="large"
                   hide-details
