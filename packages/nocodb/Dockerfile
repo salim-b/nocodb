@@ -52,7 +52,8 @@ ENV NC_TOOL_DIR=/usr/app/data/
 RUN apk --update --no-cache add \
     nodejs \
     tar \
-    dumb-init
+    dumb-init \
+    sqlite
 
 # Copy litestream binary build
 COPY  --from=lt-builder /usr/src/lt /usr/src/appEntry/litestream
